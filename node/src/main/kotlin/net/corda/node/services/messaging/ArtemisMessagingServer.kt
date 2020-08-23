@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration
 import org.apache.activemq.artemis.api.core.SimpleString
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl
 import org.apache.activemq.artemis.core.config.Configuration
+import org.apache.activemq.artemis.core.config.DivertConfiguration
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration
 import org.apache.activemq.artemis.core.security.Role
@@ -143,6 +144,12 @@ class ArtemisMessagingServer(private val config: NodeConfiguration,
         journalBufferTimeout_AIO = journalBufferTimeout ?: ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutAio()
         journalFileSize = maxMessageSize + JOURNAL_HEADER_SIZE// The size of each journal file in bytes. Artemis default is 10MiB.
         managementNotificationAddress = SimpleString(NOTIFICATIONS_ADDRESS)
+        divertConfigurations = listOf(DivertConfiguration().apply {
+            name = "p2p-divert"
+            address = "$P2P_PREFIX#"
+            isExclusive = false
+            forwardingAddress = "${INTERNAL_PREFIX}p2p-spytopic"
+        })
 
         // JMX enablement
         if (config.jmxMonitoringHttpPort != null) {
